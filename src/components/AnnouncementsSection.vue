@@ -2,6 +2,26 @@
 import { useProgramStore } from '../stores/programStore';
 
 const store = useProgramStore();
+
+function formatPhoneNumber(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  // Strip all non-digits
+  const digits = input.value.replace(/\D/g, '').slice(0, 10);
+
+  // Format as (XXX) XXX-XXXX
+  let formatted = '';
+  if (digits.length > 0) {
+    formatted = '(' + digits.slice(0, 3);
+  }
+  if (digits.length >= 3) {
+    formatted += ') ' + digits.slice(3, 6);
+  }
+  if (digits.length >= 6) {
+    formatted += '-' + digits.slice(6, 10);
+  }
+
+  store.program.executiveSecretaryPhone = formatted;
+}
 </script>
 
 <template>
@@ -24,46 +44,107 @@ const store = useProgramStore();
           Remove
         </button>
       </div>
-      <textarea
-        v-model="announcement.text"
-        placeholder="Announcement text"
-        rows="2"
-      ></textarea>
+      <div class="field">
+        <input
+          v-model="announcement.title"
+          type="text"
+          placeholder="Title (e.g., Temple Baptisms)"
+        />
+      </div>
+      <div class="field">
+        <textarea
+          v-model="announcement.description"
+          placeholder="Description (e.g., Saturday, February 7 - Meet at 9am)"
+          rows="2"
+        ></textarea>
+      </div>
     </div>
 
     <button type="button" class="add-btn" @click="store.addAnnouncement">
       + Add Announcement
     </button>
 
-    <h3>Upcoming Events</h3>
+    <h2 class="section-divider">Missionaries</h2>
+    <p class="section-hint">Missionaries serving from your ward</p>
 
     <div
-      v-for="(item, index) in store.program.calendarItems"
-      :key="item.id"
+      v-for="(missionary, index) in store.program.missionaries"
+      :key="missionary.id"
       class="dynamic-item"
     >
       <div class="dynamic-item-header">
-        <span class="item-number">Event {{ index + 1 }}</span>
+        <span class="item-number">Missionary {{ index + 1 }}</span>
         <button
           type="button"
           class="remove-btn"
-          @click="store.removeCalendarItem(item.id)"
+          @click="store.removeMissionary(missionary.id)"
         >
           Remove
         </button>
       </div>
-      <div class="field-row">
-        <div class="field" style="flex: 0 0 150px">
-          <input v-model="item.date" type="text" placeholder="Date (e.g., Jan 15)" />
-        </div>
-        <div class="field" style="flex: 1">
-          <input v-model="item.event" type="text" placeholder="Event description" />
-        </div>
+      <div class="field">
+        <input
+          v-model="missionary.name"
+          type="text"
+          placeholder="Name (e.g., Abigail Myers)"
+        />
+      </div>
+      <div class="field">
+        <input
+          v-model="missionary.mission"
+          type="text"
+          placeholder="Mission (e.g., Las Vegas Area Service Mission)"
+        />
+      </div>
+      <div class="field">
+        <input
+          v-model="missionary.email"
+          type="email"
+          placeholder="Email (e.g., abigail.myers@missionary.org)"
+        />
       </div>
     </div>
 
-    <button type="button" class="add-btn" @click="store.addCalendarItem">
-      + Add Event
+    <button type="button" class="add-btn" @click="store.addMissionary">
+      + Add Missionary
     </button>
+
+    <h2 class="section-divider">Bishop Contact</h2>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="execSecName">Executive Secretary Name</label>
+        <input
+          id="execSecName"
+          v-model="store.program.executiveSecretaryName"
+          type="text"
+          placeholder="e.g., Brother Kilburn"
+        />
+      </div>
+      <div class="field">
+        <label for="execSecPhone">Executive Secretary Phone</label>
+        <input
+          id="execSecPhone"
+          :value="store.program.executiveSecretaryPhone"
+          type="tel"
+          placeholder="(555) 555-5555"
+          @input="formatPhoneNumber"
+        />
+      </div>
+    </div>
   </section>
 </template>
+
+<style scoped>
+.section-hint {
+  color: #666;
+  font-size: 14px;
+  margin: -10px 0 15px 0;
+}
+
+.section-divider {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+</style>

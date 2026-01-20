@@ -146,41 +146,78 @@ function buildServiceOrderPage(data: ProgramData): Content {
 // Page 4: Back Cover (Announcements)
 function buildAnnouncementsPage(data: ProgramData): Content {
   const items: Content[] = [
+    // Announcements header
     {
       text: 'Announcements',
       style: 'sectionTitle',
-      alignment: 'center',
-      margin: [0, 0, 0, 15],
+      margin: [0, 0, 0, 20],
     },
   ];
 
-  const validAnnouncements = data.announcements.filter((a) => a.text);
+  // Announcements with bold title and description
+  const validAnnouncements = data.announcements.filter((a) => a.title);
   validAnnouncements.forEach((announcement) => {
     items.push({
-      text: `\u2022 ${announcement.text}`,
-
-      margin: [0, 3, 0, 3],
+      text: announcement.title,
+      bold: true,
+      margin: [0, 0, 0, 2],
     });
+    if (announcement.description) {
+      items.push({
+        text: announcement.description,
+        margin: [0, 0, 0, 20],
+      });
+    }
   });
 
-  // Calendar section if items exist
-  const validCalendarItems = data.calendarItems.filter((c) => c.event);
-  if (validCalendarItems.length > 0) {
-    items.push({ text: '', margin: [0, 15, 0, 0] });
-    items.push({
-      text: 'Upcoming Events',
-      style: 'sectionTitle',
+  // Bottom section with missionaries and bishop contact
+  const bottomItems: Content[] = [];
+
+  // Missionaries section
+  const validMissionaries = data.missionaries.filter((m) => m.name);
+  if (validMissionaries.length > 0) {
+    bottomItems.push({
+      text: 'Write to the Missionaries Serving from our Ward',
+      bold: true,
       alignment: 'center',
-      margin: [0, 0, 0, 10],
+      margin: [0, 0, 0, 15],
     });
 
-    validCalendarItems.forEach((item) => {
-      items.push({
-        text: item.date ? `${item.date}: ${item.event}` : item.event,
-
-        margin: [0, 3, 0, 3],
+    validMissionaries.forEach((missionary) => {
+      const missionaryLines: Content[] = [];
+      const nameLine = missionary.mission
+        ? `${missionary.name} - ${missionary.mission}`
+        : missionary.name;
+      missionaryLines.push({
+        text: nameLine,
+        alignment: 'center',
+        margin: [0, 0, 0, 2],
       });
+      if (missionary.email) {
+        missionaryLines.push({
+          text: missionary.email,
+          alignment: 'center',
+          margin: [0, 0, 0, 10],
+        });
+      }
+      bottomItems.push({ stack: missionaryLines });
     });
+  }
+
+  // Bishop contact info
+  if (data.executiveSecretaryName || data.executiveSecretaryPhone) {
+    const contactText = `If you need to meet with the Bishop, please contact the Executive Secretary, ${data.executiveSecretaryName || '[Name]'}, at ${data.executiveSecretaryPhone || '[Phone]'}.`;
+    bottomItems.push({
+      text: contactText,
+      alignment: 'center',
+      margin: [0, 20, 0, 0],
+    });
+  }
+
+  // Add spacing before bottom section
+  if (bottomItems.length > 0) {
+    items.push({ text: '', margin: [0, 40, 0, 0] });
+    items.push(...bottomItems);
   }
 
   return {

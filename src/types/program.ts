@@ -1,18 +1,19 @@
 export interface Speaker {
   id: string;
   name: string;
-  topic?: string;
 }
 
 export interface Announcement {
   id: string;
-  text: string;
+  title: string;
+  description: string;
 }
 
-export interface CalendarItem {
+export interface Missionary {
   id: string;
-  date: string;
-  event: string;
+  name: string;
+  mission: string;
+  email: string;
 }
 
 export interface Hymn {
@@ -43,9 +44,11 @@ export interface ProgramData {
 
   speakers: Speaker[];
 
-  // Announcements (Page 4)
+  // Back Page (Page 4)
   announcements: Announcement[];
-  calendarItems: CalendarItem[];
+  missionaries: Missionary[];
+  executiveSecretaryName: string;
+  executiveSecretaryPhone: string;
 }
 
 export interface StoredData {

@@ -25,10 +25,12 @@ function createDefaultProgram(): ProgramData {
     invocation: '',
     benediction: '',
 
-    speakers: [{ id: crypto.randomUUID(), name: '', topic: '' }],
+    speakers: [{ id: crypto.randomUUID(), name: '' }],
 
-    announcements: [{ id: crypto.randomUUID(), text: '' }],
-    calendarItems: [],
+    announcements: [{ id: crypto.randomUUID(), title: '', description: '' }],
+    missionaries: [],
+    executiveSecretaryName: '',
+    executiveSecretaryPhone: '',
   };
 }
 
@@ -41,7 +43,38 @@ export const useProgramStore = defineStore('program', () => {
       try {
         const parsed: StoredData = JSON.parse(stored);
         if (parsed.version === STORAGE_VERSION) {
-          program.value = parsed.data;
+          const data = parsed.data as ProgramData & {
+            restHymn?: { number: string; title: string };
+            calendarItems?: unknown[];
+          };
+
+          // Migrate old restHymn to congregationalHymn
+          if (data.restHymn && !data.congregationalHymn) {
+            data.congregationalHymn = data.restHymn;
+            delete data.restHymn;
+          }
+          if (!data.congregationalHymn) {
+            data.congregationalHymn = { number: '', title: '' };
+          }
+
+          // Migrate old announcement format (text -> title/description)
+          if (data.announcements?.length && 'text' in data.announcements[0]) {
+            data.announcements = (data.announcements as unknown as { id: string; text: string }[]).map((a) => ({
+              id: a.id,
+              title: a.text,
+              description: '',
+            }));
+          }
+
+          // Remove old calendarItems
+          delete data.calendarItems;
+
+          // Ensure new fields exist
+          if (!data.missionaries) data.missionaries = [];
+          if (!data.executiveSecretaryName) data.executiveSecretaryName = '';
+          if (!data.executiveSecretaryPhone) data.executiveSecretaryPhone = '';
+
+          program.value = data;
         }
       } catch (e) {
         console.warn('Failed to parse stored program data', e);
@@ -67,7 +100,6 @@ export const useProgramStore = defineStore('program', () => {
     program.value.speakers.push({
       id: crypto.randomUUID(),
       name: '',
-      topic: '',
     });
   }
 
@@ -81,7 +113,8 @@ export const useProgramStore = defineStore('program', () => {
   function addAnnouncement(): void {
     program.value.announcements.push({
       id: crypto.randomUUID(),
-      text: '',
+      title: '',
+      description: '',
     });
   }
 
@@ -92,18 +125,19 @@ export const useProgramStore = defineStore('program', () => {
     }
   }
 
-  function addCalendarItem(): void {
-    program.value.calendarItems.push({
+  function addMissionary(): void {
+    program.value.missionaries.push({
       id: crypto.randomUUID(),
-      date: '',
-      event: '',
+      name: '',
+      mission: '',
+      email: '',
     });
   }
 
-  function removeCalendarItem(id: string): void {
-    const index = program.value.calendarItems.findIndex((c) => c.id === id);
+  function removeMissionary(id: string): void {
+    const index = program.value.missionaries.findIndex((m) => m.id === id);
     if (index > -1) {
-      program.value.calendarItems.splice(index, 1);
+      program.value.missionaries.splice(index, 1);
     }
   }
 
@@ -132,8 +166,8 @@ export const useProgramStore = defineStore('program', () => {
     removeSpeaker,
     addAnnouncement,
     removeAnnouncement,
-    addCalendarItem,
-    removeCalendarItem,
+    addMissionary,
+    removeMissionary,
     setCoverImage,
   };
 });

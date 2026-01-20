@@ -17,18 +17,35 @@ export function useImageUpload() {
         return;
       }
 
-      const reader = new FileReader();
+      // Use canvas to convert any image format to PNG (pdfmake only supports PNG/JPEG)
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
 
-      reader.onload = () => {
-        const result = reader.result as string;
-        resolve(result);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error('Failed to create canvas context'));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0);
+        const pngDataUrl = canvas.toDataURL('image/png');
+
+        URL.revokeObjectURL(objectUrl);
+        resolve(pngDataUrl);
       };
 
-      reader.onerror = () => {
-        reject(new Error('Failed to read file'));
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('Failed to load image'));
       };
 
-      reader.readAsDataURL(file);
+      img.src = objectUrl;
     });
   }
 

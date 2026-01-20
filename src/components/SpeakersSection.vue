@@ -24,13 +24,8 @@ const store = useProgramStore();
           Remove
         </button>
       </div>
-      <div class="field-row">
-        <div class="field">
-          <input v-model="speaker.name" type="text" placeholder="Speaker Name" />
-        </div>
-        <div class="field">
-          <input v-model="speaker.topic" type="text" placeholder="Topic (optional)" />
-        </div>
+      <div class="field">
+        <input v-model="speaker.name" type="text" placeholder="Speaker Name" />
       </div>
     </div>
 
