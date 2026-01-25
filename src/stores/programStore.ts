@@ -9,7 +9,7 @@ function createDefaultProgram(): ProgramData {
   return {
     stakeName: '',
     wardName: '',
-    meetingDate: new Date().toISOString().split('T')[0],
+    meetingDate: new Date().toISOString().split('T')[0] ?? '',
     coverImage: null,
 
     presiding: '',
@@ -58,7 +58,8 @@ export const useProgramStore = defineStore('program', () => {
           }
 
           // Migrate old announcement format (text -> title/description)
-          if (data.announcements?.length && 'text' in data.announcements[0]) {
+          const firstAnnouncement = data.announcements?.[0];
+          if (firstAnnouncement && 'text' in firstAnnouncement) {
             data.announcements = (data.announcements as unknown as { id: string; text: string }[]).map((a) => ({
               id: a.id,
               title: a.text,
