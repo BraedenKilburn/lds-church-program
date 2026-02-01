@@ -5,11 +5,32 @@ import type { ProgramData, StoredData } from '../types/program';
 const STORAGE_KEY = 'ward-program-data';
 const STORAGE_VERSION = 1;
 
+function getNextSunday(): string {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+  const nextSunday = new Date(today);
+  nextSunday.setDate(today.getDate() + daysUntilSunday);
+
+  // Use local date methods to avoid timezone issues with toISOString()
+  const year = nextSunday.getFullYear();
+  const month = String(nextSunday.getMonth() + 1).padStart(2, '0');
+  const day = String(nextSunday.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function isFirstSundayOfMonth(dateStr: string): boolean {
+  const date = new Date(dateStr + 'T12:00:00');
+  // First Sunday is always on day 1-7 of the month
+  return date.getDay() === 0 && date.getDate() <= 7;
+}
+
 function createDefaultProgram(): ProgramData {
+  const nextSunday = getNextSunday();
   return {
     stakeName: '',
     wardName: '',
-    meetingDate: new Date().toISOString().split('T')[0] ?? '',
+    meetingDate: nextSunday,
     coverImage: null,
 
     presiding: '',
@@ -25,7 +46,7 @@ function createDefaultProgram(): ProgramData {
     invocation: '',
     benediction: '',
 
-    isFastSunday: false,
+    isFastSunday: isFirstSundayOfMonth(nextSunday),
     speakers: [{ id: crypto.randomUUID(), name: '' }],
 
     announcements: [{ id: crypto.randomUUID(), title: '', description: '' }],
@@ -75,7 +96,11 @@ export const useProgramStore = defineStore('program', () => {
           if (!data.missionaries) data.missionaries = [];
           if (!data.executiveSecretaryName) data.executiveSecretaryName = '';
           if (!data.executiveSecretaryPhone) data.executiveSecretaryPhone = '';
-          if (data.isFastSunday === undefined) data.isFastSunday = false;
+
+          // Always reset meeting date to the upcoming Sunday on load
+          const nextSunday = getNextSunday();
+          data.meetingDate = nextSunday;
+          data.isFastSunday = isFirstSundayOfMonth(nextSunday);
 
           program.value = data;
         }
@@ -150,6 +175,16 @@ export const useProgramStore = defineStore('program', () => {
 
   // Load from storage on initialization
   loadFromStorage();
+
+  // Auto-update isFastSunday when meeting date changes
+  watch(
+    () => program.value.meetingDate,
+    (newDate) => {
+      if (newDate) {
+        program.value.isFastSunday = isFirstSundayOfMonth(newDate);
+      }
+    }
+  );
 
   // Auto-save on any change
   watch(
