@@ -25,6 +25,7 @@ function createDefaultProgram(): ProgramData {
     invocation: '',
     benediction: '',
 
+    isFastSunday: false,
     speakers: [{ id: crypto.randomUUID(), name: '' }],
 
     announcements: [{ id: crypto.randomUUID(), title: '', description: '' }],
@@ -74,6 +75,7 @@ export const useProgramStore = defineStore('program', () => {
           if (!data.missionaries) data.missionaries = [];
           if (!data.executiveSecretaryName) data.executiveSecretaryName = '';
           if (!data.executiveSecretaryPhone) data.executiveSecretaryPhone = '';
+          if (data.isFastSunday === undefined) data.isFastSunday = false;
 
           program.value = data;
         }

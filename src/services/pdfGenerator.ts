@@ -61,24 +61,24 @@ function buildHymnRow(label: string, hymn: Hymn, marginBottom: number = 4): Cont
 function buildCoverPage(data: ProgramData): Content {
   const content: Content[] = [
     { text: 'The Church of Jesus Christ of Latter-day Saints', style: 'churchName', alignment: 'center' },
-    { text: data.stakeName || 'Stake Name',  alignment: 'center' },
-    { text: data.wardName || 'Ward Name',  alignment: 'center' }
+    { text: data.stakeName || 'Stake Name', alignment: 'center' },
+    { text: data.wardName || 'Ward Name', alignment: 'center' }
   ];
 
-    if (data.coverImage) {
-      content.push({
-        image: data.coverImage,
-        width: PANEL_WIDTH - 40,
-        alignment: 'center',
-      } as Content);
-    }
-
+  if (data.coverImage) {
     content.push({
-      text: formatDate(data.meetingDate),
-      style: 'date',
+      image: data.coverImage,
+      width: PANEL_WIDTH - 40,
       alignment: 'center',
-      absolutePosition: { x: PANEL_WIDTH + MARGIN, y: PAGE_HEIGHT - MARGIN - 20 },
-    });
+    } as Content);
+  }
+
+  content.push({
+    text: formatDate(data.meetingDate),
+    style: 'date',
+    alignment: 'center',
+    absolutePosition: { x: PANEL_WIDTH + MARGIN, y: PAGE_HEIGHT - MARGIN - 20 },
+  });
 
   return {
     stack: content,
@@ -108,7 +108,7 @@ function buildServiceOrderPage(data: ProgramData): Content {
     buildRow('Invocation', data.invocation || 'By Invitation', 24),
 
     // Sacrament Hymn
-    buildHymnRow('Sacrament Hymn', data.sacramentHymn, 24),
+    buildHymnRow('Sacrament Hymn', data.sacramentHymn, 32),
 
     // Administration of the Sacrament
     {
@@ -119,18 +119,35 @@ function buildServiceOrderPage(data: ProgramData): Content {
     },
   ];
 
-  // Speakers with congregational hymn between first and second
-  const validSpeakers = data.speakers.filter((s) => s.name);
-  const hasCongregationalHymn = data.congregationalHymn?.number || data.congregationalHymn?.title;
+  // Fast Sunday: Testimonies section OR regular speakers
+  if (data.isFastSunday) {
+    items.push({
+      text: 'TESTIMONIES',
+      alignment: 'center',
+      bold: true,
+      fontSize: 14,
+      margin: [0, 32, 0, 8],
+    });
+    items.push({
+      text: 'Please focus your testimony on Jesus Christ',
+      alignment: 'center',
+      italics: true,
+      margin: [0, 0, 0, 64],
+    });
+  } else {
+    // Speakers with congregational hymn between first and second
+    const validSpeakers = data.speakers.filter((s) => s.name);
+    const hasCongregationalHymn = data.congregationalHymn?.number || data.congregationalHymn?.title;
 
-  validSpeakers.forEach((speaker, index) => {
-    items.push(buildRow('Speaker', speaker.name, 24));
+    validSpeakers.forEach((speaker, index) => {
+      items.push(buildRow('Speaker', speaker.name, 24));
 
-    // Insert congregational hymn after first speaker
-    if (index === 0 && hasCongregationalHymn) {
-      items.push(buildHymnRow('Congregational Hymn', data.congregationalHymn, 24));
-    }
-  });
+      // Insert congregational hymn after first speaker
+      if (index === 0 && hasCongregationalHymn) {
+        items.push(buildHymnRow('Congregational Hymn', data.congregationalHymn, 24));
+      }
+    });
+  }
 
   // Closing Hymn
   items.push(buildHymnRow('Closing Hymn', data.closingHymn, 24));

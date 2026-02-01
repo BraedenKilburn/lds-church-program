@@ -5,7 +5,7 @@ const store = useProgramStore();
 </script>
 
 <template>
-  <section class="form-section">
+  <section v-if="!store.program.isFastSunday" class="form-section">
     <h2>Speakers</h2>
 
     <div

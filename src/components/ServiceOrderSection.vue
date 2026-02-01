@@ -8,6 +8,13 @@ const store = useProgramStore();
   <section class="form-section">
     <h2>Service Order</h2>
 
+    <div class="checkbox-field">
+      <label>
+        <input type="checkbox" v-model="store.program.isFastSunday" />
+        Fast Sunday (Testimony Meeting)
+      </label>
+    </div>
+
     <div class="field-row">
       <div class="field">
         <label for="presiding">Presiding</label>
@@ -73,7 +80,7 @@ const store = useProgramStore();
       </div>
     </div>
 
-    <div class="hymn-group">
+    <div v-if="!store.program.isFastSunday" class="hymn-group">
       <label>Congregational Hymn (Optional)</label>
       <div class="hymn-inputs">
         <input

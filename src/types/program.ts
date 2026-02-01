@@ -42,6 +42,7 @@ export interface ProgramData {
   invocation: string;
   benediction: string;
 
+  isFastSunday: boolean;
   speakers: Speaker[];
 
   // Back Page (Page 4)
