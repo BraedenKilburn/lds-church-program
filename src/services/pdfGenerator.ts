@@ -108,28 +108,39 @@ function buildInsideLeftPage(): Content {
 
 // Page 3: Inside Right (Service Order)
 function buildServiceOrderPage(data: ProgramData): Content {
+  // Determine if we need compact spacing (3+ speakers with congregational hymn)
+  const validSpeakers = data.isFastSunday
+    ? []
+    : data.speakers.filter((s) => s.name)
+  const hasCongregationalHymn =
+    data.congregationalHymn?.number || data.congregationalHymn?.title
+  const compact = validSpeakers.length >= 3 && hasCongregationalHymn
+
+  const sectionGap = compact ? 24 : 32
+  const itemGap = compact ? 20 : 24
+
   const items: Content[] = [
     // Leadership (grouped together with small spacing)
     buildRow('Presiding', data.presiding, 2),
     buildRow('Conducting', data.conducting, 2),
     buildRow('Chorister', data.chorister, 2),
-    buildRow('Organist', data.organist, 32),
+    buildRow('Organist', data.organist, sectionGap),
 
     // Opening Hymn
-    buildHymnRow('Opening Hymn', data.openingHymn, 24),
+    buildHymnRow('Opening Hymn', data.openingHymn, itemGap),
 
     // Invocation
-    buildRow('Invocation', data.invocation || 'By Invitation', 24),
+    buildRow('Invocation', data.invocation || 'By Invitation', itemGap),
 
     // Sacrament Hymn
-    buildHymnRow('Sacrament Hymn', data.sacramentHymn, 32),
+    buildHymnRow('Sacrament Hymn', data.sacramentHymn, sectionGap),
 
     // Administration of the Sacrament
     {
       text: 'Administration of the Sacrament',
       alignment: 'center',
       italics: true,
-      margin: [0, 0, 0, 32],
+      margin: [0, 0, 0, sectionGap],
     },
   ]
 
@@ -149,25 +160,20 @@ function buildServiceOrderPage(data: ProgramData): Content {
       margin: [0, 0, 0, 64],
     })
   } else {
-    // Speakers with congregational hymn between first and second
-    const validSpeakers = data.speakers.filter((s) => s.name)
-    const hasCongregationalHymn =
-      data.congregationalHymn?.number || data.congregationalHymn?.title
-
     validSpeakers.forEach((speaker, index) => {
-      items.push(buildRow('Speaker', speaker.name, 24))
-
-      // Insert congregational hymn after first speaker
-      if (index === 0 && hasCongregationalHymn) {
+      // Insert congregational hymn before the last speaker
+      if (index === validSpeakers.length - 1 && hasCongregationalHymn) {
         items.push(
-          buildHymnRow('Congregational Hymn', data.congregationalHymn, 24),
+          buildHymnRow('Congregational Hymn', data.congregationalHymn, itemGap),
         )
       }
+
+      items.push(buildRow('Speaker', speaker.name, itemGap))
     })
   }
 
   // Closing Hymn
-  items.push(buildHymnRow('Closing Hymn', data.closingHymn, 24))
+  items.push(buildHymnRow('Closing Hymn', data.closingHymn, itemGap))
 
   // Benediction
   items.push(buildRow('Benediction', data.benediction || 'By Invitation'))
