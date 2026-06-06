@@ -60,7 +60,6 @@ function formatPhoneNumber(event: Event): void {
           <button
             type="button"
             class="remove-btn"
-            :disabled="store.program.announcements.length === 1"
             @click="store.removeAnnouncement(announcement.id)"
           >
             Remove

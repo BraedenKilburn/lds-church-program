@@ -8,20 +8,17 @@
     "dev": "vite",
     "preview": "vite preview"
   },
-  "overrides": {
-    "vite": "npm:rolldown-vite@7.3.1"
-  },
   "devDependencies": {
-    "@types/node": "^24.10.9",
-    "@types/pdfmake": "^0.3.0",
-    "@vitejs/plugin-vue": "^6.0.3",
+    "@types/node": "^24.13.1",
+    "@types/pdfmake": "^0.3.3",
+    "@vitejs/plugin-vue": "^6.0.7",
     "@vue/tsconfig": "^0.8.1",
-    "pdfmake": "^0.3.3",
+    "pdfmake": "^0.3.9",
     "pinia": "^3.0.4",
     "typescript": "~5.9.3",
-    "vite": "npm:rolldown-vite@7.3.1",
-    "vue": "^3.5.27",
+    "vite": "^8.0.0",
+    "vue": "^3.5.35",
     "vue-draggable-plus": "^0.6.1",
-    "vue-tsc": "^3.2.4"
+    "vue-tsc": "^3.3.3"
   }
 }

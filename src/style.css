@@ -122,12 +122,12 @@ body {
   margin-bottom: 0;
 }
 
-/* Hymn Inputs */
-.hymn-group {
+/* Hymn Selector */
+.hymn-select {
   margin-bottom: 16px;
 }
 
-.hymn-group > label {
+.hymn-select > label {
   display: block;
   margin-bottom: 6px;
   font-weight: 500;
@@ -135,34 +135,86 @@ body {
   font-size: 14px;
 }
 
-.hymn-inputs {
-  display: flex;
-  gap: 12px;
+.hymn-combobox {
+  position: relative;
 }
 
-.hymn-number {
-  width: 80px !important;
-  flex: 0 0 80px;
+.hymn-combobox-input {
+  width: 100%;
   padding: 10px 12px;
+  padding-right: 40px;
   border: 1px solid #d0d0d0;
   border-radius: 6px;
   font-size: 14px;
-  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.hymn-title {
-  flex: 1;
-  padding: 10px 12px;
-  border: 1px solid #d0d0d0;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.hymn-number:focus,
-.hymn-title:focus {
+.hymn-combobox-input:focus {
   outline: none;
   border-color: #4a90d9;
   box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+}
+
+.hymn-clear-btn {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.hymn-clear-btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.hymn-options {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.hymn-option,
+.hymn-option-empty {
+  padding: 9px 10px;
+  border-radius: 4px;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.hymn-option {
+  cursor: pointer;
+}
+
+.hymn-option:hover,
+.hymn-option.is-active {
+  background: #e0efff;
+  color: #1f5f9f;
+}
+
+.hymn-option-empty {
+  color: #777;
 }
 
 /* Dynamic Items */

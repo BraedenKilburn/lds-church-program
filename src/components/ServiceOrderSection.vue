@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import HymnSelect from './HymnSelect.vue';
 import { useProgramStore } from '../stores/programStore';
 
 const store = useProgramStore();
@@ -37,23 +38,11 @@ const store = useProgramStore();
       </div>
     </div>
 
-    <div class="hymn-group">
-      <label>Opening Hymn</label>
-      <div class="hymn-inputs">
-        <input
-          v-model="store.program.openingHymn.number"
-          type="text"
-          placeholder="#"
-          class="hymn-number"
-        />
-        <input
-          v-model="store.program.openingHymn.title"
-          type="text"
-          placeholder="Hymn Title"
-          class="hymn-title"
-        />
-      </div>
-    </div>
+    <HymnSelect
+      id="opening-hymn"
+      v-model="store.program.openingHymn"
+      label="Opening Hymn"
+    />
 
     <div class="field-row">
       <div class="field">
@@ -62,59 +51,25 @@ const store = useProgramStore();
       </div>
     </div>
 
-    <div class="hymn-group">
-      <label>Sacrament Hymn</label>
-      <div class="hymn-inputs">
-        <input
-          v-model="store.program.sacramentHymn.number"
-          type="text"
-          placeholder="#"
-          class="hymn-number"
-        />
-        <input
-          v-model="store.program.sacramentHymn.title"
-          type="text"
-          placeholder="Hymn Title"
-          class="hymn-title"
-        />
-      </div>
-    </div>
+    <HymnSelect
+      id="sacrament-hymn"
+      v-model="store.program.sacramentHymn"
+      label="Sacrament Hymn"
+    />
 
-    <div v-if="!store.program.isFastSunday" class="hymn-group">
-      <label>Congregational Hymn (Optional)</label>
-      <div class="hymn-inputs">
-        <input
-          v-model="store.program.congregationalHymn.number"
-          type="text"
-          placeholder="#"
-          class="hymn-number"
-        />
-        <input
-          v-model="store.program.congregationalHymn.title"
-          type="text"
-          placeholder="Hymn Title"
-          class="hymn-title"
-        />
-      </div>
-    </div>
+    <HymnSelect
+      v-if="!store.program.isFastSunday"
+      id="congregational-hymn"
+      v-model="store.program.congregationalHymn"
+      label="Congregational Hymn"
+      optional
+    />
 
-    <div class="hymn-group">
-      <label>Closing Hymn</label>
-      <div class="hymn-inputs">
-        <input
-          v-model="store.program.closingHymn.number"
-          type="text"
-          placeholder="#"
-          class="hymn-number"
-        />
-        <input
-          v-model="store.program.closingHymn.title"
-          type="text"
-          placeholder="Hymn Title"
-          class="hymn-title"
-        />
-      </div>
-    </div>
+    <HymnSelect
+      id="closing-hymn"
+      v-model="store.program.closingHymn"
+      label="Closing Hymn"
+    />
 
     <div class="field-row">
       <div class="field">

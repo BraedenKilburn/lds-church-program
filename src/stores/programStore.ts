@@ -49,7 +49,7 @@ function createDefaultProgram(): ProgramData {
     isFastSunday: isFirstSundayOfMonth(nextSunday),
     speakers: [{ id: crypto.randomUUID(), name: '' }],
 
-    announcements: [{ id: crypto.randomUUID(), title: '', description: '' }],
+    announcements: [],
     missionaries: [],
     executiveSecretaryName: '',
     executiveSecretaryPhone: '',
@@ -93,6 +93,7 @@ export const useProgramStore = defineStore('program', () => {
           delete data.calendarItems;
 
           // Ensure new fields exist
+          if (!data.announcements) data.announcements = [];
           if (!data.missionaries) data.missionaries = [];
           if (!data.executiveSecretaryName) data.executiveSecretaryName = '';
           if (!data.executiveSecretaryPhone) data.executiveSecretaryPhone = '';
@@ -148,7 +149,7 @@ export const useProgramStore = defineStore('program', () => {
 
   function removeAnnouncement(id: string): void {
     const index = program.value.announcements.findIndex((a) => a.id === id);
-    if (index > -1 && program.value.announcements.length > 1) {
+    if (index > -1) {
       program.value.announcements.splice(index, 1);
     }
   }
