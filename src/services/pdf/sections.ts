@@ -2,6 +2,8 @@ import type { Content } from 'pdfmake/interfaces';
 import type { Hymn, ProgramData } from '../../types/program';
 import { LEFT_PANEL_WIDTH, MARGIN, PAGE_HEIGHT, PANEL_WIDTH } from './layout';
 
+const MUSIC_ROLE_ROW_HEIGHT = 10;
+
 function formatDate(isoDate: string): string {
   const date = new Date(`${isoDate}T12:00:00`);
   return date.toLocaleDateString('en-US', {
@@ -19,6 +21,14 @@ function buildRow(label: string, value: string, marginBottom = 4): Content {
     ],
     margin: [0, 0, 0, marginBottom],
   };
+}
+
+function buildSpacer(marginBottom: number): Content {
+  return { text: '', margin: [0, 0, 0, MUSIC_ROLE_ROW_HEIGHT + marginBottom] };
+}
+
+function hasValue(value: string): boolean {
+  return value.trim().length > 0;
 }
 
 function buildHymnRow(label: string, hymn: Hymn, marginBottom = 4): Content {
@@ -87,18 +97,24 @@ export function buildServiceOrderPage(data: ProgramData): Content {
   const items: Content[] = [
     buildRow('Presiding', data.presiding, 2),
     buildRow('Conducting', data.conducting, 2),
-    buildRow('Chorister', data.chorister, 2),
-    buildRow('Organist', data.organist, sectionGap),
-    buildHymnRow('Opening Hymn', data.openingHymn, itemGap),
-    buildRow('Invocation', data.invocation || 'By Invitation', itemGap),
-    buildHymnRow('Sacrament Hymn', data.sacramentHymn, sectionGap),
-    {
-      text: 'Administration of the Sacrament',
-      alignment: 'center',
-      italics: true,
-      margin: [0, 0, 0, sectionGap],
-    },
   ];
+
+  items.push(hasValue(data.chorister) ? buildRow('Chorister', data.chorister, 2) : buildSpacer(2));
+  items.push(
+    hasValue(data.organist)
+      ? buildRow('Organist', data.organist, sectionGap)
+      : buildSpacer(sectionGap),
+  );
+
+  items.push(buildHymnRow('Opening Hymn', data.openingHymn, itemGap));
+  items.push(buildRow('Invocation', data.invocation || 'By Invitation', itemGap));
+  items.push(buildHymnRow('Sacrament Hymn', data.sacramentHymn, sectionGap));
+  items.push({
+    text: 'Administration of the Sacrament',
+    alignment: 'center',
+    italics: true,
+    margin: [0, 0, 0, sectionGap],
+  });
 
   if (data.isFastSunday) {
     items.push({
@@ -187,9 +203,8 @@ export function buildAnnouncementsPage(data: ProgramData): Content {
   }
 
   if (data.executiveSecretaryName || data.executiveSecretaryPhone) {
-    const contactText = `If you need to meet with the Bishop, please contact the Executive Secretary, ${
-      data.executiveSecretaryName || '[Name]'
-    }, at ${data.executiveSecretaryPhone || '[Phone]'}.`;
+    const contactText = `If you need to meet with the Bishop, please contact the Executive Secretary, ${data.executiveSecretaryName || '[Name]'
+      }, at ${data.executiveSecretaryPhone || '[Phone]'}.`;
     bottomItems.push({
       text: contactText,
       alignment: 'center',

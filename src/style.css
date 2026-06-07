@@ -96,6 +96,8 @@ body {
 .field input[type='email'],
 .field textarea {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 10px 12px;
   border: 1px solid #d0d0d0;
   border-radius: 6px;
@@ -448,6 +450,7 @@ body {
 
 /* File Input */
 input[type='file'] {
+  max-width: 100%;
   font-size: 14px;
   color: #666;
 }
@@ -468,7 +471,7 @@ input[type='file'] {
 /* Responsive */
 @media (max-width: 600px) {
   .app-container {
-    padding: 16px 12px 120px;
+    padding: 16px 12px;
   }
 
   .form-section {
@@ -485,15 +488,14 @@ input[type='file'] {
   }
 
   .form-actions {
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
     flex-direction: column;
     gap: 10px;
-    margin: 0 -12px;
     padding: 12px;
-    background: rgba(245, 245, 245, 0.96);
-    border-top: 1px solid #e0e0e0;
+  }
+
+  .field input[type='date'] {
+    display: block;
+    min-width: 0;
   }
 
   .form-actions button {
