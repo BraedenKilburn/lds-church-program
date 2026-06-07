@@ -31,11 +31,11 @@ header {
 
 header h1 {
   margin: 0 0 8px 0;
-  color: #1a1a1a;
+  color: var(--color-text-heading);
 }
 
 .subtitle {
-  color: #666;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -43,8 +43,8 @@ footer {
   text-align: center;
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
-  color: #666;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
   font-size: 14px;
 }
 </style>
