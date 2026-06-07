@@ -15,10 +15,14 @@ interface HymnOption {
   searchText: string;
 }
 
+const EMPTY_QUERY_LIMIT = 25;
+const SEARCH_RESULT_LIMIT = 50;
+
 const props = defineProps<{
   id: string;
   label: string;
   optional?: boolean;
+  error?: string;
 }>();
 
 const model = defineModel<Hymn>({ required: true });
@@ -46,12 +50,12 @@ const listboxId = computed(() => `${props.id}-options`);
 const activeOptionId = computed(() =>
   isOpen.value && filteredOptions.value[activeIndex.value]
     ? `${props.id}-option-${activeIndex.value}`
-    : undefined
+    : undefined,
 );
 const placeholder = computed(() =>
   props.optional
     ? 'Search by hymn number or title, or leave blank'
-    : 'Search by hymn number or title'
+    : 'Search by hymn number or title',
 );
 const hasInput = computed(() => query.value.trim().length > 0);
 const selectedLabel = computed(() => getDisplayValue(model.value));
@@ -61,6 +65,11 @@ const filteredOptions = computed(() => {
     ? options.filter((option) => option.searchText.includes(normalizedQuery))
     : options;
 });
+const visibleOptions = computed(() => {
+  const limit = normalizeQuery(query.value) ? SEARCH_RESULT_LIMIT : EMPTY_QUERY_LIMIT;
+  return filteredOptions.value.slice(0, limit);
+});
+const hasMoreOptions = computed(() => filteredOptions.value.length > visibleOptions.value.length);
 
 watch(
   model,
@@ -69,8 +78,14 @@ watch(
       query.value = getDisplayValue(hymn);
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
+
+watch(visibleOptions, (nextOptions) => {
+  if (activeIndex.value >= nextOptions.length) {
+    activeIndex.value = Math.max(0, nextOptions.length - 1);
+  }
+});
 
 function normalizeQuery(value: string): string {
   return value.trim().toLowerCase().replace(/^#/, '');
@@ -103,9 +118,7 @@ function findOptionForHymn(hymn: Hymn): HymnOption | undefined {
   }
 
   if (hymn.title) {
-    return options.find(
-      (option) => option.title.toLowerCase() === hymn.title.toLowerCase()
-    );
+    return options.find((option) => option.title.toLowerCase() === hymn.title.toLowerCase());
   }
 
   return undefined;
@@ -121,7 +134,7 @@ function findExactQueryMatch(value: string): HymnOption | undefined {
     (option) =>
       option.number === normalizedValue ||
       option.title.toLowerCase() === normalizedValue ||
-      option.label.toLowerCase() === value.trim().toLowerCase()
+      option.label.toLowerCase() === value.trim().toLowerCase(),
   );
 }
 
@@ -185,8 +198,7 @@ function moveActive(delta: number): void {
   }
 
   const nextIndex = activeIndex.value + delta;
-  activeIndex.value =
-    (nextIndex + filteredOptions.value.length) % filteredOptions.value.length;
+  activeIndex.value = (nextIndex + visibleOptions.value.length) % visibleOptions.value.length;
   void nextTick(() => {
     optionElements.value?.[activeIndex.value]?.scrollIntoView({
       block: 'nearest',
@@ -195,7 +207,7 @@ function moveActive(delta: number): void {
 }
 
 function selectActive(): void {
-  const activeOption = filteredOptions.value[activeIndex.value];
+  const activeOption = visibleOptions.value[activeIndex.value];
   if (activeOption) {
     selectOption(activeOption);
   }
@@ -217,6 +229,8 @@ function selectActive(): void {
         :aria-controls="listboxId"
         :aria-expanded="isOpen"
         :aria-activedescendant="activeOptionId"
+        :aria-invalid="Boolean(error)"
+        :aria-describedby="error ? `${id}-error` : undefined"
         :placeholder="placeholder"
         @focus="handleFocus"
         @input="handleInput"
@@ -236,14 +250,9 @@ function selectActive(): void {
       >
         &times;
       </button>
-      <ul
-        v-if="isOpen"
-        :id="listboxId"
-        class="hymn-options"
-        role="listbox"
-      >
+      <ul v-if="isOpen" :id="listboxId" class="hymn-options" role="listbox">
         <li
-          v-for="(option, index) in filteredOptions"
+          v-for="(option, index) in visibleOptions"
           :id="`${id}-option-${index}`"
           :key="`${option.number}-${option.title}`"
           ref="optionElements"
@@ -263,7 +272,11 @@ function selectActive(): void {
         >
           No hymns found
         </li>
+        <li v-else-if="hasMoreOptions" class="hymn-option-empty" aria-disabled="true">
+          Start typing to search all hymns
+        </li>
       </ul>
     </div>
+    <p v-if="error" :id="`${id}-error`" class="error">{{ error }}</p>
   </div>
 </template>

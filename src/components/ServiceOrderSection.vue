@@ -3,6 +3,10 @@ import HymnSelect from './HymnSelect.vue';
 import { useProgramStore } from '../stores/programStore';
 
 const store = useProgramStore();
+
+defineProps<{
+  errors?: Record<string, string>;
+}>();
 </script>
 
 <template>
@@ -42,6 +46,7 @@ const store = useProgramStore();
       id="opening-hymn"
       v-model="store.program.openingHymn"
       label="Opening Hymn"
+      :error="errors?.openingHymn"
     />
 
     <div class="field-row">
@@ -55,6 +60,7 @@ const store = useProgramStore();
       id="sacrament-hymn"
       v-model="store.program.sacramentHymn"
       label="Sacrament Hymn"
+      :error="errors?.sacramentHymn"
     />
 
     <HymnSelect
@@ -69,6 +75,7 @@ const store = useProgramStore();
       id="closing-hymn"
       v-model="store.program.closingHymn"
       label="Closing Hymn"
+      :error="errors?.closingHymn"
     />
 
     <div class="field-row">

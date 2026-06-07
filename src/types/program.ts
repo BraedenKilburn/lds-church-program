@@ -57,3 +57,13 @@ export interface StoredData {
   data: ProgramData;
   lastSaved: string;
 }
+
+export interface ProgramValidationError {
+  field: string;
+  message: string;
+}
+
+export interface ProgramValidationResult {
+  valid: boolean;
+  errors: ProgramValidationError[];
+}

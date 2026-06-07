@@ -1,8 +1,17 @@
 <script setup lang="ts">
-import { VueDraggable } from 'vue-draggable-plus';
 import { useProgramStore } from '../stores/programStore';
+import DynamicList from './DynamicList.vue';
+import type { Announcement, Missionary } from '../types/program';
 
 const store = useProgramStore();
+
+function updateAnnouncements(announcements: Announcement[]): void {
+  store.program.announcements = announcements;
+}
+
+function updateMissionaries(missionaries: Missionary[]): void {
+  store.program.missionaries = missionaries;
+}
 
 function formatPhoneNumber(event: Event): void {
   const input = event.target as HTMLInputElement;
@@ -29,42 +38,16 @@ function formatPhoneNumber(event: Event): void {
   <section class="form-section">
     <h2>Announcements</h2>
 
-    <VueDraggable
-      v-model="store.program.announcements"
-      :animation="200"
-      handle=".drag-handle"
-      ghost-class="dragging"
+    <DynamicList
+      :items="store.program.announcements"
+      label="Announcement"
+      add-label="+ Add Announcement"
+      empty-text="No announcements added."
+      @update:items="updateAnnouncements"
+      @remove="store.removeAnnouncement"
+      @add="store.addAnnouncement"
     >
-      <div
-        v-for="(announcement, index) in store.program.announcements"
-        :key="announcement.id"
-        class="dynamic-item"
-      >
-        <div class="dynamic-item-header">
-          <div class="drag-handle" title="Drag to reorder">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-            >
-              <circle cx="5" cy="3" r="1.5" />
-              <circle cx="11" cy="3" r="1.5" />
-              <circle cx="5" cy="8" r="1.5" />
-              <circle cx="11" cy="8" r="1.5" />
-              <circle cx="5" cy="13" r="1.5" />
-              <circle cx="11" cy="13" r="1.5" />
-            </svg>
-          </div>
-          <span class="item-number">Announcement {{ index + 1 }}</span>
-          <button
-            type="button"
-            class="remove-btn"
-            @click="store.removeAnnouncement(announcement.id)"
-          >
-            Remove
-          </button>
-        </div>
+      <template #default="{ item: announcement }">
         <div class="field">
           <input
             v-model="announcement.title"
@@ -79,58 +62,24 @@ function formatPhoneNumber(event: Event): void {
             rows="2"
           ></textarea>
         </div>
-      </div>
-    </VueDraggable>
-
-    <button type="button" class="add-btn" @click="store.addAnnouncement">
-      + Add Announcement
-    </button>
+      </template>
+    </DynamicList>
 
     <h2 class="section-divider">Missionaries</h2>
     <p class="section-hint">Missionaries serving from your ward</p>
 
-    <VueDraggable
-      v-model="store.program.missionaries"
-      :animation="200"
-      handle=".drag-handle"
-      ghost-class="dragging"
+    <DynamicList
+      :items="store.program.missionaries"
+      label="Missionary"
+      add-label="+ Add Missionary"
+      empty-text="No missionaries added."
+      @update:items="updateMissionaries"
+      @remove="store.removeMissionary"
+      @add="store.addMissionary"
     >
-      <div
-        v-for="(missionary, index) in store.program.missionaries"
-        :key="missionary.id"
-        class="dynamic-item"
-      >
-        <div class="dynamic-item-header">
-          <div class="drag-handle" title="Drag to reorder">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-            >
-              <circle cx="5" cy="3" r="1.5" />
-              <circle cx="11" cy="3" r="1.5" />
-              <circle cx="5" cy="8" r="1.5" />
-              <circle cx="11" cy="8" r="1.5" />
-              <circle cx="5" cy="13" r="1.5" />
-              <circle cx="11" cy="13" r="1.5" />
-            </svg>
-          </div>
-          <span class="item-number">Missionary {{ index + 1 }}</span>
-          <button
-            type="button"
-            class="remove-btn"
-            @click="store.removeMissionary(missionary.id)"
-          >
-            Remove
-          </button>
-        </div>
+      <template #default="{ item: missionary }">
         <div class="field">
-          <input
-            v-model="missionary.name"
-            type="text"
-            placeholder="Name (e.g., Abigail Myers)"
-          />
+          <input v-model="missionary.name" type="text" placeholder="Name (e.g., Abigail Myers)" />
         </div>
         <div class="field">
           <input
@@ -146,12 +95,8 @@ function formatPhoneNumber(event: Event): void {
             placeholder="Email (e.g., abigail.myers@missionary.org)"
           />
         </div>
-      </div>
-    </VueDraggable>
-
-    <button type="button" class="add-btn" @click="store.addMissionary">
-      + Add Missionary
-    </button>
+      </template>
+    </DynamicList>
 
     <h2 class="section-divider">Bishop Contact</h2>
 
@@ -190,31 +135,5 @@ function formatPhoneNumber(event: Event): void {
   margin-top: 40px;
   padding-top: 20px;
   border-top: 1px solid #e0e0e0;
-}
-
-.drag-handle {
-  cursor: grab;
-  padding: 4px 8px;
-  color: #999;
-  display: flex;
-  align-items: center;
-  border-radius: 4px;
-  transition: color 0.2s, background-color 0.2s;
-}
-
-.drag-handle:hover {
-  color: #666;
-  background: #f0f0f0;
-}
-
-.drag-handle:active {
-  cursor: grabbing;
-}
-
-.dragging {
-  opacity: 0.5;
-  background: #e8f4ff;
-  border: 1px dashed #4a90d9;
-  border-radius: 8px;
 }
 </style>

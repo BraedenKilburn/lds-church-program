@@ -5,6 +5,10 @@ import { useImageUpload } from '../composables/useImageUpload';
 const store = useProgramStore();
 const { isLoading, error, handleFileSelect } = useImageUpload();
 
+defineProps<{
+  errors?: Record<string, string>;
+}>();
+
 function onFileChange(event: Event) {
   handleFileSelect(event, (base64) => {
     store.setCoverImage(base64);
@@ -22,17 +26,39 @@ function removeImage() {
 
     <div class="field">
       <label for="stakeName">Stake Name</label>
-      <input id="stakeName" v-model="store.program.stakeName" type="text" placeholder="Example Stake" />
+      <input
+        id="stakeName"
+        v-model="store.program.stakeName"
+        type="text"
+        placeholder="Example Stake"
+      />
     </div>
 
     <div class="field">
       <label for="wardName">Ward Name</label>
-      <input id="wardName" v-model="store.program.wardName" type="text" placeholder="Example Ward" />
+      <input
+        id="wardName"
+        v-model="store.program.wardName"
+        type="text"
+        placeholder="Example Ward"
+        :aria-invalid="Boolean(errors?.wardName)"
+        aria-describedby="wardName-error"
+      />
+      <p v-if="errors?.wardName" id="wardName-error" class="error">{{ errors.wardName }}</p>
     </div>
 
     <div class="field">
       <label for="meetingDate">Meeting Date</label>
-      <input id="meetingDate" v-model="store.program.meetingDate" type="date" />
+      <input
+        id="meetingDate"
+        v-model="store.program.meetingDate"
+        type="date"
+        :aria-invalid="Boolean(errors?.meetingDate)"
+        aria-describedby="meetingDate-error"
+      />
+      <p v-if="errors?.meetingDate" id="meetingDate-error" class="error">
+        {{ errors.meetingDate }}
+      </p>
     </div>
 
     <div class="field">
@@ -42,9 +68,7 @@ function removeImage() {
       <p v-if="error" class="error">{{ error }}</p>
       <div v-if="store.program.coverImage" class="image-preview">
         <img :src="store.program.coverImage" alt="Cover preview" />
-        <button type="button" class="remove-btn" @click="removeImage">
-          Remove Image
-        </button>
+        <button type="button" class="remove-btn" @click="removeImage">Remove Image</button>
       </div>
     </div>
   </section>
