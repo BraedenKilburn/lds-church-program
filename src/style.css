@@ -494,8 +494,17 @@ input[type='file'] {
   }
 
   .field input[type='date'] {
+    -webkit-appearance: none;
+    appearance: none;
     display: block;
+    inline-size: 100%;
+    min-inline-size: 0;
     min-width: 0;
+  }
+
+  .field input[type='date']::-webkit-date-and-time-value {
+    min-width: 0;
+    text-align: left;
   }
 
   .form-actions button {
