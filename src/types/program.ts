@@ -21,6 +21,13 @@ export interface Hymn {
   title: string;
 }
 
+export type MidProgramMusicType = 'congregationalHymn' | 'specialMusic';
+
+export interface SpecialMusic {
+  title: string;
+  description: string;
+}
+
 export interface ProgramData {
   // Cover (Page 1)
   stakeName: string;
@@ -37,7 +44,9 @@ export interface ProgramData {
   openingHymn: Hymn;
   sacramentHymn: Hymn;
   closingHymn: Hymn;
+  midProgramMusicType: MidProgramMusicType;
   congregationalHymn: Hymn;
+  specialMusic: SpecialMusic;
 
   invocation: string;
   benediction: string;

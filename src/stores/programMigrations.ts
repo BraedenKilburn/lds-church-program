@@ -30,6 +30,9 @@ export function migrateStoredProgram(parsed: StoredData): ProgramData | null {
     data.congregationalHymn = { number: '', title: '' };
   }
 
+  data.midProgramMusicType ??= 'congregationalHymn';
+  data.specialMusic ??= { title: '', description: '' };
+
   const firstAnnouncement = data.announcements?.[0];
   if (hasLegacyAnnouncementText(firstAnnouncement)) {
     data.announcements = data.announcements?.map((announcement): Announcement => {

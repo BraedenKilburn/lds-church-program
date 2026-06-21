@@ -63,13 +63,55 @@ defineProps<{
       :error="errors?.sacramentHymn"
     />
 
-    <HymnSelect
-      v-if="!store.program.isFastSunday"
-      id="congregational-hymn"
-      v-model="store.program.congregationalHymn"
-      label="Congregational Hymn"
-      optional
-    />
+    <div v-if="!store.program.isFastSunday" class="mid-program-music">
+      <div class="segmented-control" role="group" aria-label="Mid-program music type">
+        <button
+          type="button"
+          class="segmented-button"
+          :class="{ 'is-active': store.program.midProgramMusicType === 'congregationalHymn' }"
+          @click="store.program.midProgramMusicType = 'congregationalHymn'"
+        >
+          Congregational Hymn
+        </button>
+        <button
+          type="button"
+          class="segmented-button"
+          :class="{ 'is-active': store.program.midProgramMusicType === 'specialMusic' }"
+          @click="store.program.midProgramMusicType = 'specialMusic'"
+        >
+          Special Musical Number
+        </button>
+      </div>
+
+      <HymnSelect
+        v-if="store.program.midProgramMusicType === 'congregationalHymn'"
+        id="congregational-hymn"
+        v-model="store.program.congregationalHymn"
+        label="Congregational Hymn"
+        optional
+      />
+
+      <div v-else class="special-music-fields">
+        <div class="field">
+          <label for="special-music-title">Special Music Title</label>
+          <input
+            id="special-music-title"
+            v-model="store.program.specialMusic.title"
+            type="text"
+            placeholder="Musical Number"
+          />
+        </div>
+        <div class="field">
+          <label for="special-music-description">Description</label>
+          <input
+            id="special-music-description"
+            v-model="store.program.specialMusic.description"
+            type="text"
+            placeholder="Performed by..."
+          />
+        </div>
+      </div>
+    </div>
 
     <HymnSelect
       id="closing-hymn"

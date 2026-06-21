@@ -1,5 +1,5 @@
 import type { Content } from 'pdfmake/interfaces';
-import type { Hymn, ProgramData } from '../../types/program';
+import type { Hymn, ProgramData, SpecialMusic } from '../../types/program';
 import { LEFT_PANEL_WIDTH, MARGIN, PAGE_HEIGHT, PANEL_WIDTH } from './layout';
 
 const MUSIC_ROLE_ROW_HEIGHT = 10;
@@ -31,6 +31,22 @@ function hasValue(value: string): boolean {
   return value.trim().length > 0;
 }
 
+function hasHymnContent(hymn: Hymn): boolean {
+  return hasValue(hymn.number) || hasValue(hymn.title);
+}
+
+function hasSpecialMusicContent(specialMusic: SpecialMusic): boolean {
+  return hasValue(specialMusic.title) || hasValue(specialMusic.description);
+}
+
+function hasMidProgramMusic(data: ProgramData): boolean {
+  if (data.midProgramMusicType === 'specialMusic') {
+    return hasSpecialMusicContent(data.specialMusic);
+  }
+
+  return hasHymnContent(data.congregationalHymn);
+}
+
 function buildHymnRow(label: string, hymn: Hymn, marginBottom = 4): Content {
   const content: Content[] = [
     {
@@ -51,6 +67,35 @@ function buildHymnRow(label: string, hymn: Hymn, marginBottom = 4): Content {
   }
 
   return { stack: content, margin: [0, 0, 0, marginBottom] };
+}
+
+function buildSpecialMusicRow(specialMusic: SpecialMusic, marginBottom = 4): Content {
+  const content: Content[] = [
+    {
+      text: specialMusic.title || 'Special Musical Number',
+      alignment: 'center',
+      bold: true,
+      margin: [0, 0, 0, specialMusic.description ? 4 : 0],
+    },
+  ];
+
+  if (specialMusic.description) {
+    content.push({
+      text: specialMusic.description,
+      alignment: 'center',
+      italics: true,
+    });
+  }
+
+  return { stack: content, margin: [0, 0, 0, marginBottom] };
+}
+
+function buildMidProgramMusicRow(data: ProgramData, marginBottom = 4): Content {
+  if (data.midProgramMusicType === 'specialMusic') {
+    return buildSpecialMusicRow(data.specialMusic, marginBottom);
+  }
+
+  return buildHymnRow('Congregational Hymn', data.congregationalHymn, marginBottom);
 }
 
 export function buildCoverPage(data: ProgramData): Content {
@@ -88,8 +133,8 @@ export function buildInsideLeftPage(): Content {
 
 export function buildServiceOrderPage(data: ProgramData): Content {
   const validSpeakers = data.isFastSunday ? [] : data.speakers.filter((speaker) => speaker.name);
-  const hasCongregationalHymn = data.congregationalHymn?.number || data.congregationalHymn?.title;
-  const compact = validSpeakers.length >= 3 && hasCongregationalHymn;
+  const hasMidProgramMusicSlot = hasMidProgramMusic(data);
+  const compact = validSpeakers.length >= 3 && hasMidProgramMusicSlot;
 
   const sectionGap = compact ? 24 : 32;
   const itemGap = compact ? 20 : 24;
@@ -132,8 +177,8 @@ export function buildServiceOrderPage(data: ProgramData): Content {
     });
   } else {
     validSpeakers.forEach((speaker, index) => {
-      if (index === validSpeakers.length - 1 && hasCongregationalHymn) {
-        items.push(buildHymnRow('Congregational Hymn', data.congregationalHymn, itemGap));
+      if (index === validSpeakers.length - 1 && hasMidProgramMusicSlot) {
+        items.push(buildMidProgramMusicRow(data, itemGap));
       }
 
       items.push(buildRow('Speaker', speaker.name, itemGap));
@@ -203,8 +248,9 @@ export function buildAnnouncementsPage(data: ProgramData): Content {
   }
 
   if (data.executiveSecretaryName || data.executiveSecretaryPhone) {
-    const contactText = `If you need to meet with the Bishop, please contact the Executive Secretary, ${data.executiveSecretaryName || '[Name]'
-      }, at ${data.executiveSecretaryPhone || '[Phone]'}.`;
+    const contactText = `If you need to meet with the Bishop, please contact the Executive Secretary, ${
+      data.executiveSecretaryName || '[Name]'
+    }, at ${data.executiveSecretaryPhone || '[Phone]'}.`;
     bottomItems.push({
       text: contactText,
       alignment: 'center',

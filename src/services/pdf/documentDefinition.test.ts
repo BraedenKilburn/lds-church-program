@@ -17,7 +17,9 @@ function createProgram(overrides: Partial<ProgramData> = {}): ProgramData {
     openingHymn: { number: '1', title: 'The Morning Breaks' },
     sacramentHymn: { number: '169', title: 'As Now We Take the Sacrament' },
     closingHymn: { number: '2', title: 'The Spirit of God' },
+    midProgramMusicType: 'congregationalHymn',
     congregationalHymn: { number: '', title: '' },
+    specialMusic: { title: '', description: '' },
     invocation: '',
     benediction: '',
     isFastSunday: false,
@@ -54,7 +56,12 @@ function getDocumentText(doc: TDocumentDefinitions): string[] {
 }
 
 function getStack(content: Content): Content[] {
-  if (content && typeof content === 'object' && 'stack' in content && Array.isArray(content.stack)) {
+  if (
+    content &&
+    typeof content === 'object' &&
+    'stack' in content &&
+    Array.isArray(content.stack)
+  ) {
     return content.stack as Content[];
   }
 
@@ -89,6 +96,85 @@ describe('buildProgramDocumentDefinition', () => {
     expect(text.indexOf('Congregational Hymn')).toBeLessThan(text.indexOf('Final Speaker'));
   });
 
+  it('inserts special music before the final speaker', () => {
+    const text = getDocumentText(
+      buildProgramDocumentDefinition(
+        createProgram({
+          midProgramMusicType: 'specialMusic',
+          specialMusic: {
+            title: "Father's Day Musical Number",
+            description: 'Primary children singing "My Dad" and "Love Is Spoken Here"',
+          },
+        }),
+      ),
+    );
+
+    expect(text.indexOf("Father's Day Musical Number")).toBeLessThan(text.indexOf('Final Speaker'));
+  });
+
+  it('renders special music title and description', () => {
+    const text = getDocumentText(
+      buildProgramDocumentDefinition(
+        createProgram({
+          midProgramMusicType: 'specialMusic',
+          specialMusic: {
+            title: 'Special Musical Number',
+            description: '"Come Thou Fount" - Jane Doe, violin',
+          },
+        }),
+      ),
+    );
+
+    expect(text).toContain('Special Musical Number');
+    expect(text).toContain('"Come Thou Fount" - Jane Doe, violin');
+  });
+
+  it('omits blank special music', () => {
+    const text = getDocumentText(
+      buildProgramDocumentDefinition(
+        createProgram({
+          midProgramMusicType: 'specialMusic',
+          specialMusic: { title: '', description: '' },
+        }),
+      ),
+    );
+
+    expect(text).not.toContain('Special Musical Number');
+  });
+
+  it('uses compact spacing when special music is present with three or more speakers', () => {
+    const stack = getStack(
+      buildServiceOrderPage(
+        createProgram({
+          midProgramMusicType: 'specialMusic',
+          specialMusic: { title: 'Special Musical Number', description: 'Ward choir' },
+          speakers: [
+            { id: 'speaker-1', name: 'First Speaker' },
+            { id: 'speaker-2', name: 'Second Speaker' },
+            { id: 'speaker-3', name: 'Final Speaker' },
+          ],
+        }),
+      ),
+    );
+
+    expect(collectText(stack[6])).toContain('Sacrament Hymn');
+    expect(stack[6]).toMatchObject({ margin: [0, 0, 0, 24] });
+  });
+
+  it('omits special music on fast Sunday', () => {
+    const text = getDocumentText(
+      buildProgramDocumentDefinition(
+        createProgram({
+          isFastSunday: true,
+          midProgramMusicType: 'specialMusic',
+          specialMusic: { title: 'Special Musical Number', description: 'Ward choir' },
+        }),
+      ),
+    );
+
+    expect(text).not.toContain('Special Musical Number');
+  });
+
   it('uses invitation fallback text for blank prayers', () => {
     const text = getDocumentText(buildProgramDocumentDefinition(createProgram()));
 
@@ -107,8 +193,8 @@ describe('buildProgramDocumentDefinition', () => {
   it('keeps music role spacing when chorister and organist rows are blank', () => {
     const stack = getStack(buildServiceOrderPage(createProgram({ chorister: '', organist: '' })));
 
-    expect(stack[2]).toMatchObject({ text: '', margin: [0, 0, 0, 16] });
-    expect(stack[3]).toMatchObject({ text: '', margin: [0, 0, 0, 46] });
+    expect(stack[2]).toMatchObject({ text: '', margin: [0, 0, 0, 12] });
+    expect(stack[3]).toMatchObject({ text: '', margin: [0, 0, 0, 42] });
     expect(collectText(stack[4])).toContain('Opening Hymn');
   });
 

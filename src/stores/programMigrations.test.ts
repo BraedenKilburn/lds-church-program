@@ -25,7 +25,9 @@ function createStoredData(data: LegacyProgramFixture): StoredData {
       openingHymn: { number: '', title: '' },
       sacramentHymn: { number: '', title: '' },
       closingHymn: { number: '', title: '' },
+      midProgramMusicType: 'congregationalHymn',
       congregationalHymn: { number: '', title: '' },
+      specialMusic: { title: '', description: '' },
       invocation: '',
       benediction: '',
       isFastSunday: false,
@@ -52,6 +54,18 @@ describe('program migrations', () => {
       number: '2',
       title: 'The Spirit of God',
     });
+  });
+
+  it('initializes missing mid-program music fields', () => {
+    const migrated = migrateStoredProgram(
+      createStoredData({
+        midProgramMusicType: undefined,
+        specialMusic: undefined,
+      }),
+    );
+
+    expect(migrated?.midProgramMusicType).toBe('congregationalHymn');
+    expect(migrated?.specialMusic).toEqual({ title: '', description: '' });
   });
 
   it('migrates old announcement text format', () => {

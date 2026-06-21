@@ -17,7 +17,9 @@ export function createDefaultProgram(): ProgramData {
     openingHymn: { number: '', title: '' },
     sacramentHymn: { number: '', title: '' },
     closingHymn: { number: '', title: '' },
+    midProgramMusicType: 'congregationalHymn',
     congregationalHymn: { number: '', title: '' },
+    specialMusic: { title: '', description: '' },
 
     invocation: '',
     benediction: '',

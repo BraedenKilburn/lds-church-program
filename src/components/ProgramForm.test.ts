@@ -55,4 +55,41 @@ describe('ProgramForm', () => {
 
     expect(wrapper.text()).toContain('Generating...');
   });
+
+  it('switches between congregational hymn and special music without clearing hidden values', async () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const wrapper = mount(ProgramForm, {
+      global: {
+        plugins: [pinia],
+        stubs: {
+          VueDraggable: { template: '<div><slot /></div>' },
+        },
+      },
+    });
+    const store = useProgramStore();
+    store.program.isFastSunday = false;
+
+    await nextTick();
+
+    expect(wrapper.text()).toContain('Congregational Hymn');
+    expect(wrapper.text()).toContain('Special Musical Number');
+
+    await wrapper.findAll('.segmented-button')[1]?.trigger('click');
+    await nextTick();
+
+    expect(wrapper.find('#special-music-title').exists()).toBe(true);
+    expect(wrapper.find('#special-music-description').exists()).toBe(true);
+
+    await wrapper.find('#special-music-title').setValue("Father's Day Musical Number");
+    await wrapper.find('#special-music-description').setValue('Primary children singing');
+    await wrapper.findAll('.segmented-button')[0]?.trigger('click');
+    await nextTick();
+
+    expect(wrapper.find('#congregational-hymn').exists()).toBe(true);
+    expect(store.program.specialMusic).toEqual({
+      title: "Father's Day Musical Number",
+      description: 'Primary children singing',
+    });
+  });
 });
